@@ -29,7 +29,9 @@ Codex 会把想法整理进 [product.md](docs/requirements/product.md)，只追�
 
 ## 从模板创建项目
 
-在模板目录执行，替换目标项目名称；目标目录应尚不存在：
+可以在 [modelproject 仓库页面](https://github.com/shotolee/modelproject) 点击 **Use this template → Create a new repository**，填写新项目名称并选择可见性。创建后克隆新仓库，再按下方流程开始。
+
+也可以在本地模板目录复制文件，替换目标项目名称；目标目录应尚不存在：
 
 ```bash
 mkdir -p "$HOME/projects"

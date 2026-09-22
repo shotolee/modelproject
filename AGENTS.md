@@ -9,6 +9,7 @@ Workflow: product requirements → Codex design and planning → OpenCode + Mini
 `docs/requirements/product.md` defines what the product should do: its purpose, users, goals, user-facing capabilities, constraints and scope.
 
 - Users may explain ideas naturally, in one message or several. Codex maintains the documents for them. Do not require users to write detailed specifications, numbered requirements, acceptance IDs or version records.
+- Users may describe features at a capability level. Do not require them to decompose each feature into detailed sub-requirements. Codex is responsible for functional decomposition during design and planning; clarify consequential business choices instead of inventing them.
 - Keep requirements in one product document by default. Do not automatically create per-feature documents, requirement indexes, baseline manifests or traceability matrices.
 - Technical decomposition, workflows, data models, APIs, modules, implementation steps and testable acceptance criteria belong in `docs/architecture.md` and `docs/implementation-plan.md`. Codex owns this work.
 - Preserve the user's business intent. List unclear business rules under open questions instead of inventing answers. Ask only questions that materially affect the current work; existing explicit instructions do not need repeated confirmation.
