@@ -57,8 +57,27 @@ Report contradictions. This order does not override explicit user instructions o
 
 Before edits, inspect git status and relevant existing files; preserve unrelated user changes. Before completion, run applicable checks and report changed files, actual results and unresolved issues.
 
-- Record a pre-implementation Git commit in the plan to define the code review range. This is not a separate requirements approval process. If no commit exists, explicitly review all initial files rather than treating an empty diff as success.
-- Review committed changes since that point, staged/unstaged changes and untracked files. Read new files explicitly.
-- Preserve prior plans and reports in Git history before replacing them. If they are uncommitted, keep a dated copy instead; do not require an archive index or task numbering system. Reset review/audit conclusions for a new task.
-- Do not commit, push, deploy or run destructive Git operations without authorization. Do not store secrets or machine-specific private paths in the template.
+Git checkpoints are required during development. A request to perform project work authorizes ordinary local task branches and scoped local commits under these rules, unless the user explicitly requests no commits. It does not authorize remote pushes, merges, releases or deployment.
+
+### Start of a task
+
+- Confirm the project root with `git rev-parse --show-toplevel`; do not mistake a parent repository for the new project's repository. Initialize a separate repository if necessary and make an initial template commit before design work. Check `.gitignore` and exclude secrets and generated files first.
+- Inspect branch, HEAD, staged/unstaged changes and untracked files. Do not automatically stage, commit, discard or stash unrelated user work. If it overlaps the task, resolve ownership with the user before touching that part; independent work may continue.
+- Use a task branch such as `work/<short-topic>` created from the intended starting commit. Reuse the current branch if it already belongs to this task. Do not automatically merge into the default branch.
+- Record the starting branch/commit in the plan. Before replacing previous plans or reports, ensure their contents are committed or preserved in a dated copy. Reset review/audit conclusions for the new task.
+
+### Stage checkpoints
+
+1. **Codex design:** check document consistency, commit the task's requirements, architecture, decisions and Ready plan together (`docs: ...`). This design commit is the fixed code-review baseline; the implementation agent records its SHA before coding. Record an actual existing SHA, never a predicted hash for the commit containing that record.
+2. **MiniMax implementation:** divide work into the meaningful steps in the plan. After each step, inspect the diff, run relevant checks, update the implementation record and make a scoped commit (`feat: ...`, `fix: ...`, `test: ...`). Do not wait until the entire feature is finished to commit.
+3. **Blocked or interrupted work:** record failed checks, incomplete scope and the next action. If changes must be saved before resolution, use a clearly marked `wip: ...` checkpoint; it is not a passed stage and cannot be handed off as completed. Unavailable checks must be reported, not treated as passing.
+4. **Kimi review:** review baseline → explicit implementation commit and check the working tree as well. Record both SHAs, actual checks and findings; commit only the review report (`docs: review ...`). Report commits do not change the reviewed implementation revision. Code, tests, configuration, requirements, architecture or plan-scope changes after review require relevant revalidation; report/evidence-only updates do not by themselves invalidate review.
+5. **MiniMax fixes:** commit each coherent fix after checks and have Kimi review the new implementation revision. Keep the original baseline fixed throughout this task.
+6. **Codex audit:** record the implementation revision and review evidence, then commit the audit and final task records (`docs: audit ...`). Mark Done only when checks and review pass, blockers are resolved, and all task changes have been committed.
+
+At each commit, inspect `git diff`, selectively stage task paths or hunks, check `git diff --cached` and `git diff --cached --check`, commit, then verify HEAD and status. Avoid blanket `git add .` / `git add -A`. Leave unrelated staged changes intact; use an isolated index if needed or resolve the staging conflict before committing. Do not accidentally include them in the task commit.
+
+At handoff, provide the branch, baseline, implementation/checkpoint SHAs, verification results, remaining work and any dirty paths. A handoff must have no uncommitted task changes; unrelated changes are listed separately. If commits are explicitly disallowed, or Git identity/hooks prevent them, explain the checkpoint gap and do not claim the stage is complete or the task Done. Do not bypass hooks or change global identity settings without authorization.
+
+Use ordinary follow-up commits to correct errors and `git revert` for an authorized rollback; do not automatically amend, reset hard, clean, force-push or rewrite history. Git provides local history, not an off-device backup. Push to the named remote only when authorized, and verify the result. Do not store secrets or machine-specific private paths in the template.
 - Do not automatically delegate or advance to another stage without an explicit instruction.

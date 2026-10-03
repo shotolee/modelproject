@@ -39,6 +39,9 @@ mkdir "$HOME/projects/my-new-project"
 rsync -av --exclude='.git' --exclude='.DS_Store' ./ "$HOME/projects/my-new-project/"
 cd "$HOME/projects/my-new-project"
 git init -b main
+git add AGENTS.md AGENTS-CN.md README.md .gitignore docs/
+git diff --cached --check
+git commit -m "chore: initialize project template"
 ```
 
 然后按 [交接提示词](docs/handoff-prompts.md) 开始。所有占位内容需要由真实项目需求替换，不能直接当成完成的设计。模板不预设技术栈或测试命令。
@@ -65,16 +68,35 @@ Codex 更新 product.md，在 change-log.md 按日期记下重要变化与原因
 
 ## 历史与验证
 
-详细历史使用正常 Git 提交保存。变更日志只解释重要需求“为什么改”；计划记录实施与测试，评审和终审报告保留结果。替换上一轮文档前，确保旧内容已在 Git 历史中；尚未提交则先保留带日期的副本，无需固定归档体系。
+Git 是每个开发阶段的必做步骤，由 Agent 执行。你发起项目任务即授权本任务的普通本地分支与提交，无需每一步手动提醒；明确要求不提交时，Agent 应说明无法形成检查点。远程推送、合并和部署需要对应授权。
 
-实施前由 Agent 在计划里记录 Git 起点，便于评审已提交和未提交的变化。新仓库尚无提交时，应明确检查全部初始文件。已有起点时，将下列占位符替换为实际 commit：
+| 检查点 | 执行要求 | 产出 |
+| --- | --- | --- |
+| 初始化 | 确认独立 Git 根目录、忽略规则，提交初始模板 | 可以回到开发前的起点 |
+| 任务开始 | 检查分支、HEAD 与已有改动，进入或复用任务分支 | 本任务与其它工作分开 |
+| 设计完成 | 检查并提交需求、架构、决策和 Ready 计划 | 固定代码评审起点 |
+| 每个实施步骤 | 查看 diff → 运行相关验证 → 更新记录 → 选择性暂存 → 提交 | 可追溯的阶段实现与结果 |
+| 独立评审 | 检查起点到明确实施版本，报告引用 SHA；单独提交报告 | 明确哪个版本经过检查 |
+| 修复与复核 | 修复验证后提交，reviewer 对新实施版本复核 | 不混用旧版通过结论 |
+| 终审与交接 | 检查版本、测试及提交是否齐全，提交审计与最终记录 | 本任务无未提交改动 |
+
+默认任务分支如 `work/功能主题`，阶段提交示例为 `docs: plan ...`、`feat: ...`、`fix: ...`、`docs: review ...`、`docs: audit ...`。先验证再提交，不把整个功能积攒成一次提交。中断或受阻时可用 `wip: ...` 保存，但必须注明失败检查和未完成内容，不能宣称阶段通过。
+
+设计提交是本轮固定评审起点，由实施者在编码前登记其 SHA；不能预测包含记录本身的提交哈希。评审和审计报告引用实施版本，报告提交自己的 SHA 在交接时给出即可。后续代码、测试、配置、需求或设计范围改变需要相关复核；纯报告更新不等于实施版本变化。
+
+详细历史交给 Git；变更日志解释需求“为什么改”，计划记录实施与验证。旧计划和报告在覆盖前先提交或保留日期副本。每次只暂存本任务的文件或片段，核对 staged diff，保留无关用户改动，尤其不能把用户原有暂存变化一起提交。模板不新增需求编号或独立 Git 台账。
+
+评审常用命令（将 `DESIGN_COMMIT_SHA` 和 `IMPLEMENTATION_COMMIT_SHA` 替换为实际 SHA）：
 
 ```bash
 git status --short
-git diff <实施前commit>
+git log --oneline DESIGN_COMMIT_SHA..IMPLEMENTATION_COMMIT_SHA
+git diff DESIGN_COMMIT_SHA IMPLEMENTATION_COMMIT_SHA
 git diff --cached
 git diff
 git ls-files --others --exclude-standard
 ```
 
-最后一条列出的新增文件需单独读取。未运行的检查必须如实说明；新任务不能沿用上一轮通过结论。提交、推送和部署按用户指令执行。
+同时核对工作区差异，新增文件单独读取。交接提供分支、起点、检查点/实施 SHA、验证结果、遗留问题及未提交文件列表。提交因身份、hooks 等原因失败时如实说明，不绕过保护或宣称 Done。
+
+本地 Git 历史用于跟踪与恢复，异地备份需要推送到远程。获得推送授权后 Agent 再执行并核对远端；不自动合并、强推或部署。回退优先采用经授权的 `git revert`，保留阶段历史。
